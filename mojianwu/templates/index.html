@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Reboot Python</title>
+    <link rel="fluid-icon" href="../images/favicon.png" title="GitHub">
+    <link rel="stylesheet" href="../static/bootstrap.min.css">
+    <link rel="stylesheet" href="../static/jquery-ui.css">
+    <link rel="stylesheet" href="../static/sweetalert.css">
+    <link rel="stylesheet" href="../static/animate.min.css">
+    <style type="text/css">
+    h1,th,td {
+        text-align: center;
+    }
+    .row {
+        margin: 50px 100px;
+    }
+    .tableDiv {
+        width: 500px;
+        margin: 50px 100px;
+        text-align: center;
+    }
+    </style>
+</head>
+<body>
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <form class="form-inline">
+                <div class="form-group">
+                    <label>host</label>
+                    <input type="text" class="form-control" id="hostInput">
+                </div>
+                <div class="form-group">
+                    <label>memory</label>
+<!--                     <div id="slider"></div>
+ -->                    <input type="text" class="form-control" id="memInput">
+            </div>
+                <button type="button" class="btn btn-default flash" id="addBtn">add</button>
+            </form>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            <h1>user list table</h1>
+            <table id="content" class="table">
+            </table>
+            
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-6 col-md-offset-3">
+            
+        </div>
+    </div>
+
+
+</body>
+<script src="../static/jquery.js"></script>
+<script src="../static/jquery-ui.js"></script>
+<script src="../static/sweetalert.min.js"></script>
+<script>
+
+    $('#slider').slider({
+        slide: function(event, ui){
+
+        }
+    })
+
+    $(document).on('click', '#addBtn', function(){
+        var host = $('#hostInput').val()
+        var mem = $('#memInput').val()
+        $.get('/add?host='+host+'&mem='+mem, function(data){
+            if (data == 'ok') {
+                getList()
+            }
+        })
+        // $('#hostInput').val('')
+        // $('#memInput').val('')
+    })
+
+    $(document).on('click', '#delBtn', function(){
+        var id = $(this).attr('data-id')
+        swal({   
+            title: "Are you sure?",   
+            text: "Your will not be able to recover this data!",   
+            type: "warning",   
+            showCancelButton: true,   
+            confirmButtonColor: "#DD6B55",   
+            confirmButtonText: "Yes, delete it!",   
+            closeOnConfirm: false 
+        }, function(){   
+            $.get('/del?id='+id, function(data){
+                if (data == 'ok') {
+                    getList()
+                }
+            })
+            swal("Deleted!", "Your imaginary file has been deleted.", 
+                "success"); 
+        });
+    })
+
+    function getList(){
+        $.getJSON('/show', function(data){
+            var tmpHTML = '<tr><th>id</th><th>host</th><th>memory</th><th>oper</th></tr>'
+            $.each(data, function(index, value){
+                tmpHTML += '<tr><td>'+ value[0] +'</td><td>'+ value[1] +'</td><td>'+ value[2] +'</td><td><button id="delBtn" data-id="'+ value[0] +'">del</button></td></tr>'
+            })
+            $('#content').html(tmpHTML)
+        })
+    }
+    getList()
+</script>
+</html>
